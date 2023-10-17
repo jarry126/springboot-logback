@@ -1,0 +1,23 @@
+server:
+  port: 8090
+spring:
+#  profiles:
+#    active: dev
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://10.40.3.28:3306/dongrong?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
+    username: mysqljava
+    password: elk@92009
+#debug: true   # ??????springboot?????????????
+
+
+#logging:
+#  pattern:
+#    console: "%d ----- %msg%n"
+##  path: ../log   # 路径   默认在下面创建spring.log文件
+#  file: ../log/test.txt     # 文件存储地方
+#  level: #设置日志级别;  在com.example.springboottest.controller包下面日志级别为debug，其他还是info
+#    com.example.springboottest.controller: debug
+
+logging:
+  config: classpath:logback-dev.xml

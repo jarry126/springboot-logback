@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+5种日志级别，从低到高排行
+TRACE < DEBUG < INFO < WARN < ERROR < FATAL
+-->
+
+
+<!-- scan:当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true -->
+<configuration scan="true" scanPeriod="60 seconds" debug ="true">
+
+    <contextName>logback2323</contextName>
+
+    <!--属性：为其他地方引用准备-->
+    <property name="logback.logdir" value="../log"/>
+    <property name="logback.appname" value="app"/>
+    <!--0. 日志格式和颜色渲染 -->
+    <!-- 彩色日志依赖的渲染类 -->
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+    <conversionRule conversionWord="wex"
+                    converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
+    <conversionRule conversionWord="wEx"
+                    converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
+    <!-- 彩色日志格式 -->
+    <property name="CONSOLE_LOG_PATTERN"
+              value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+
+    <!--自定义日志颜色-->
+
+
+    <!--输出到控制台 ConsoleAppender-->   <!--layout和encoder的区别？layout是经典日志输出格式；encoder更加灵活，可以输出更加复杂的格式-->
+    <appender name="consoleLog1" class="ch.qos.logback.core.ConsoleAppender">
+        <!--debug以下的日志不输出到控制台-->
+<!--        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">-->
+<!--            <level>debug</level>-->
+<!--        </filter>-->
+<!--        <withJansi>true</withJansi>-->
+
+
+<!--        <encoder>-->
+<!--            <charset>UTF-8</charset>-->
+<!--            <pattern>${CONSOLE_LOG_PATTERN}</pattern>-->
+<!--        </encoder>-->
+
+        <!--经典格式：-->
+        <!--展示格式 layout-->
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>
+                <!--   日志参数介绍
+                %d{HH: mm:ss.SSS}——日志输出时间
+                %thread——输出日志的进程名字，这在Web应用以及异步任务处理中很有用
+                %-5level——日志级别，并且使用5个字符靠左对齐
+                %logger{36}——日志输出者的名字
+                %msg——日志消息
+                %n——平台的换行符
+                ThresholdFilter为系统定义的拦截器，例如我们用ThresholdFilter来过滤掉ERROR级别以下的日志不输出到文件中。如果不用记得注释掉，不然你控制台会发现没日志~[%boldMagenta(%logger)]
+                -->
+
+                <!--
+                颜色参数介绍：
+                    您的Logback配置中的`<pattern>`示例看起来已经定义了一些自定义颜色和样式。这是一个使用ANSI转义码的示例，将不同部分的日志消息设置为不同的颜色和样式。让我解释一下：
+
+                    - `[%d{yyyy-MM-dd HH:mm:ss.SSS}]`：将时间戳部分设置为默认颜色。
+                    - `[%green([%thread])]`：将线程名称部分设置为绿色。
+                    - `[%highlight(%-5level)]`：将日志级别部分设置为高亮颜色。
+                    - `[%boldMagenta(%logger)]`：将记录器名称部分设置为粗体品红色。
+                    - `%cyan(%msg%n)`：将消息部分设置为青色。
+
+                    这些颜色和样式设置是通过在`<pattern>`中使用Logback提供的`%green`、`%boldMagenta`、`%cyan`等转换器来实现的。这些转换器将生成对应的ANSI转义码，以改变文本的颜色和样式。
+
+                    您可以根据需要修改这些颜色和样式设置，或者根据Logback文档中提供的其他ANSI转义码来进一步自定义日志消息的外观。请确保您的终端支持ANSI转义码，以便正确显示这些颜色和样式。
+
+                -->
+
+                <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%contextName] [%green([%thread])] [%highlight(%-5level)] [%magenta(%logger)] - %cyan(%msg%n)</pattern>
+            </pattern>
+        </layout>
+        <!--   过滤器，控制ERROR以下级别不输出
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+             <level>ERROR</level>
+        </filter>
+         -->
+    </appender>
+
+
+    <!--输出到文件-->
+    <appender name="fileInfoLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--如果只是想要 Info 级别的日志，只是过滤 info 还是会输出 Error 日志，因为 Error 的级别高，
+        所以我们使用下面的策略，可以避免输出 Error 的日志-->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!--过滤 Error-->
+            <level>ERROR</level>
+            <!--匹配到就禁止-->
+            <onMatch>DENY</onMatch>
+            <!--没有匹配到就允许-->
+            <onMismatch>ACCEPT</onMismatch>
+        </filter>
+
+        <!--日志名称，如果没有File 属性，那么只会使用FileNamePattern的文件路径规则
+            如果同时有<File>和<FileNamePattern>，那么当天日志是<File>，明天会自动把今天
+            的日志改名为今天的日期。即，<File> 的日志都是当天的。
+        -->
+
+        <File>${logback.logdir}/info.${logback.appname}.log</File>
+        <!--滚动策略，按照时间滚动 TimeBasedRollingPolicy-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--文件路径,定义了日志的切分方式——把每一天的日志归档到一个文件中,以防止日志填满整个磁盘空间-->
+            <FileNamePattern>${logback.logdir}/info.${logback.appname}.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <!--只保留最近90天的日志-->
+            <maxHistory>90</maxHistory>
+            <!--用来指定日志文件的上限大小，那么到了这个值，就会删除旧的日志-->
+            <!--<totalSizeCap>1GB</totalSizeCap>-->
+        </rollingPolicy>
+        <!--日志输出编码格式化-->
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d [%thread] %-5level %logger{36} %line - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <appender name="fileErrorLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--如果只是想要 Error 级别的日志，那么需要过滤一下，默认是 info 级别的，ThresholdFilter-->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>Error</level>
+        </filter>
+        <!--日志名称，如果没有File 属性，那么只会使用FileNamePattern的文件路径规则
+            如果同时有<File>和<FileNamePattern>，那么当天日志是<File>，明天会自动把今天
+            的日志改名为今天的日期。即，<File> 的日志都是当天的。
+        -->
+        <File>${logback.logdir}/error.${logback.appname}.log</File>
+        <!--滚动策略，按照时间滚动 TimeBasedRollingPolicy-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--文件路径,定义了日志的切分方式——把每一天的日志归档到一个文件中,以防止日志填满整个磁盘空间-->
+            <FileNamePattern>${logback.logdir}/error.${logback.appname}.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <!--只保留最近90天的日志-->
+            <maxHistory>90</maxHistory>
+            <!--用来指定日志文件的上限大小，那么到了这个值，就会删除旧的日志-->
+            <!--<totalSizeCap>1GB</totalSizeCap>-->
+        </rollingPolicy>
+        <!--日志输出编码格式化-->
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d [%thread] %-5level %logger{36} %line - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <!--输出到控制台 ConsoleAppender-->
+<!--    <appender name="consoleLog2" class="ch.qos.logback.core.ConsoleAppender">-->
+<!--        <encoder>-->
+<!--            <pattern>%d -2 %msg%n</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+    <!-- 日志输入到控制台和文件, 这里的console和file是自定义的属性，被引用 -->
+    <root level="info">    <!--level可以控制下面appender的日志级别-->
+<!--        <appender-ref ref="consoleLog1" />-->
+<!--        <appender-ref ref="consoleLog2" />-->
+        <appender-ref ref="fileErrorLog" />
+        <appender-ref ref="fileInfoLog" />
+        <appender-ref ref="consoleLog1" />
+    </root>
+
+    <!--还可以直接将日志放入到kafak中，再从kafka存储到elasticsearch中-->
+
+</configuration>

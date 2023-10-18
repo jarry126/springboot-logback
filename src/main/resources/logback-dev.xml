@@ -9,7 +9,7 @@ TRACE < DEBUG < INFO < WARN < ERROR < FATAL
 <!-- scan:当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true -->
 <configuration scan="true" scanPeriod="60 seconds" debug ="true">
 
-    <contextName>logback2323</contextName>
+<!--    <contextName>logback2323</contextName>-->
 
     <!--属性：为其他地方引用准备-->
     <property name="logback.logdir" value="../log"/>
@@ -69,10 +69,9 @@ TRACE < DEBUG < INFO < WARN < ERROR < FATAL
                     这些颜色和样式设置是通过在`<pattern>`中使用Logback提供的`%green`、`%boldMagenta`、`%cyan`等转换器来实现的。这些转换器将生成对应的ANSI转义码，以改变文本的颜色和样式。
 
                     您可以根据需要修改这些颜色和样式设置，或者根据Logback文档中提供的其他ANSI转义码来进一步自定义日志消息的外观。请确保您的终端支持ANSI转义码，以便正确显示这些颜色和样式。
-
                 -->
 
-                <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%contextName] [%green([%thread])] [%highlight(%-5level)] [%magenta(%logger)] - %cyan(%msg%n)</pattern>
+                <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] ["trace": "%X{X-B3-TraceId:-}"]  ["span": "%X{X-B3-SpanId:-}"] [%green([%thread])] [%highlight(%-5level)] [%magenta(%logger)] - %cyan(%msg%n)</pattern>
             </pattern>
         </layout>
         <!--   过滤器，控制ERROR以下级别不输出
@@ -114,7 +113,7 @@ TRACE < DEBUG < INFO < WARN < ERROR < FATAL
         <!--日志输出编码格式化-->
         <encoder>
             <charset>UTF-8</charset>
-            <pattern>%d [%thread] %-5level %logger{36} %line - %msg%n</pattern>
+            <pattern>%d  "trace": "%X{X-B3-TraceId:-}", "span": "%X{X-B3-SpanId:-}", [%thread] %-5level %logger{36} %line - %msg%n</pattern>
         </encoder>
     </appender>
 

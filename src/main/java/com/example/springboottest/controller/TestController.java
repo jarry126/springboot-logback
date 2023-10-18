@@ -28,14 +28,14 @@ public class TestController {
 
 
     @GetMapping("/getone")
-    public List<CreditManagerProduct> getAllListByLevel(){
+    public String getAllListByLevel(){
         logger.info("调用findall接口{}", 23);
         log.info("使用log:{}", 45);
         log.debug("测试debug");
         log.error("报错测试");
 //        int i = 1/0;
 //        List<CreditManagerProduct> findall = testService.findall();
-        return null;
+        return "返回成功";
     }
 
 }
